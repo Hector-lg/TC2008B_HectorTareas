@@ -1,4 +1,4 @@
-from game_of_life.model_ruido import ConwaysGameOfLife
+from model import ConwaysGameOfLife
 from mesa.visualization import (
     SolaraViz,
     make_space_component,
@@ -14,14 +14,13 @@ def agent_portrayal(agent):
         marker="3",
         size=30,
     )
-
 # funcion de postprocesamiento - para quitar ejes y ajustar aspecto
 def post_process(ax):
     ax.set_aspect("equal")
     ax.set_xticks([])
     ax.set_yticks([])
 
-# Parametros del modelo para la interfaz web
+# Que es step? Un paso de la simulacion, donde todos los agentes actualizan su estado
 model_params = {
     "seed": {
         "type": "InputText",
@@ -54,20 +53,18 @@ model_params = {
     },
 }
 
-# Crear instancia inicial del modelo de ruido
+# Create initial model instance
 gof_model = ConwaysGameOfLife()
-
 # Crear el componente de espacio para la visualizacion
 space_component = make_space_component(
-    agent_portrayal,
-    draw_grid=False,
-    post_process=post_process
+        agent_portrayal,
+        draw_grid = False,
+        post_process=post_process
 )
-
 # Controlar el modelo con SolaraViz
 page = SolaraViz(
     gof_model,
     components=[space_component],
     model_params=model_params,
-    name="Game of Life - Simulación con Ruido (Regla 30)",
+    name="Game of Life",
 )
