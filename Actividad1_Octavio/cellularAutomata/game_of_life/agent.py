@@ -63,7 +63,9 @@ class Cell(FixedAgent):
 
         # Assume nextState is unchanged, unless changed below.
         
+        # Convertir a una lista sus vecinos del agente
         lista_neighbors = list (self.neighbors)
+        # Obtener los estados de los vecinos y guardarlos en una lista
         estados_neighbors = [neighbor.state for neighbor in lista_neighbors]
         #print(estados_neighbors)
         #print(self.pos)
@@ -73,7 +75,9 @@ class Cell(FixedAgent):
 
 
         self._next_state = self.state
+        # mientras que no sea la fila de hasta arriba se aplica las reglas
         if self.y < 49:
+            # Aplicar las reglas de la vida de sus vecinos de arriba
             if estados_neighbors[2] == 1 and estados_neighbors[4] == 1 and estados_neighbors[7] == 1:
                 self._next_state = self.DEAD
 

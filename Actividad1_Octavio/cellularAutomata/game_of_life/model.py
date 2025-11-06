@@ -51,9 +51,9 @@ class ConwaysGameOfLife(Model):
             #   * self.random.random() genera un numero aleatorio entre 0 y 1
             #   * Si es menor que initial_fraction_alive -> ALIVE
             #   * Si es mayor -> DEAD
-            #   Ejemplo: si initial_fraction_alive=0.2, el 20% de celulas estaran vivas
-            # self.gird.select_cells()
-            #print(cell.coordinate[0])
+            
+
+            # Crear el los agentes de forma aleatoria vivo y muertos en la fila 49
             if(cell.coordinate[1]==49):
                 
                 Cell(
@@ -65,11 +65,11 @@ class ConwaysGameOfLife(Model):
                     else Cell.DEAD
                         ),
                     )
-                    
+            # Si no es la fila 49, crear agentes muertos    
             else:
                 Cell(
-                    self,  # El modelo (para que el agente pueda acceder al modelo)
-                    cell,  # La celda del grid donde vivira este agente
+                    self,  
+                    cell,  
                     init_state=(
                 Cell.DEAD
                     ),

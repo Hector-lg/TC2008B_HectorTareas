@@ -61,9 +61,10 @@ class Cell(FixedAgent):
         #lista_arriba = lista_arriba[self.neighbors[0],self.neighbors[1], self.neighbors[2]]
         #live_neighbors = sum(neighbor.is_alive for neighbor in lista_arriba)
 
-        # Assume nextState is unchanged, unless changed below.
         
+        # Convertir a una lista sus vecinos del agente
         lista_neighbors = list (self.neighbors)
+        # Obtener los estados de los vecinos y guardarlos en una lista
         estados_neighbors = [neighbor.state for neighbor in lista_neighbors]
         #print(estados_neighbors)
         #print(self.pos)
