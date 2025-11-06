@@ -1,6 +1,6 @@
 from mesa import Model
 from mesa.discrete_space import OrthogonalMooreGrid
-from .agent import Cell
+from .agent_ruido import Cell
 
 
 class ConwaysGameOfLife(Model):
