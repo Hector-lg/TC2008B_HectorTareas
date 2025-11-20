@@ -207,3 +207,14 @@ marimo/_lsp/
 __marimo__/
 
 .agents/
+
+
+# Nodejs
+node_modules/
+.npm/
+.nuxt/
+.next/
+.env.local
+.env.*.local
+.vscode/
+*.env

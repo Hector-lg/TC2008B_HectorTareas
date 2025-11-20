@@ -10,6 +10,7 @@ import { M3 } from './2d-libs.js';
 import GUI from 'lil-gui';
 
 
+// Vertex shader program
 const vsGLSL = `#version 300 es
 in vec2 a_position;
 in vec4 a_color;
@@ -39,7 +40,7 @@ void main() {
     v_color = a_color;
 }
 `;
-
+// Fragment shader program
 const fsGLSL = `#version 300 es
 precision highp float;
 
@@ -308,9 +309,9 @@ function drawScene(gl, faceVAO, pivotVAO, programInfo, faceBufferInfo, pivotBuff
         u_transforms: pivotTransform
     };
 
-    twgl.setUniforms(programInfo, pivotUniforms);
-    gl.bindVertexArray(pivotVAO);
-    twgl.drawBufferInfo(gl, pivotBufferInfo);
+    twgl.setUniforms(programInfo, pivotUniforms); // Establecer uniformes para el pivote
+    gl.bindVertexArray(pivotVAO); // Vincular el VAO del pivote
+    twgl.drawBufferInfo(gl, pivotBufferInfo); // Dibujar el pivote
 
     
     // 1. Calcular la posicion en el canvas de la cara basada en la posicion del pivote
