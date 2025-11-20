@@ -73,11 +73,8 @@ class RandomModel(Model):
             cell = self.random.choices(self.grid.empties.cells, k = num_obstacle_cells)
         )
 
-        # Luego crear basura (máximo 1 por celda)
         num_trash = int(len(self.grid.empties.cells)*self.probTrash)
-        # Asegurarnos de no pedir más celdas de las disponibles
         num_trash = min(num_trash, len(self.grid.empties.cells))
-        # Usar sample en lugar de choices para evitar repeticiones (máximo 1 basura por celda)
         trash_cells = self.random.sample(self.grid.empties.cells, num_trash)
         TrashAgent.create_agents(
             self,
@@ -85,7 +82,6 @@ class RandomModel(Model):
             cell = trash_cells
         )
 
-        # FINALMENTE crear agente y estación de carga en [1,1] (para que se dibujen ENCIMA)
         # Para Simulación 1: Agente individual en [1,1]
         charging_cell = None
         # Buscar la celda (1,1) directamente del grid
@@ -99,8 +95,6 @@ class RandomModel(Model):
             station = ChargingStationAgent(self, cell=charging_cell)
             station_pos = charging_cell.coordinate
 
-            # Ahora creamos el robot y le pasamos la posición de SU estación
-            # Los RandomAgent se crean AL FINAL para que se dibujen ENCIMA de todo
             RandomAgent(
                 self,
                 cell=charging_cell,
