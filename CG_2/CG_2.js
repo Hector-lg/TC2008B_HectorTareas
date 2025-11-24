@@ -1,3 +1,8 @@
+/*
+    Hector Lugo Gabino A01029811
+    14/24/2025
+    TC2008B
+*/
 const fs = require('fs');
 
 const args = process.argv.slice(2);
