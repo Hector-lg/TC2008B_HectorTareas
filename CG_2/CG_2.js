@@ -3,6 +3,48 @@
     14/24/2025
     TC2008B
 */
+
+class V3 {
+    static create(x, y, z) {
+        const v = new Float32Array(3);
+        v[0] = x;
+        v[1] = y;
+        v[2] = z;
+        return v;
+    }
+
+    static subtract(u, v, dest) {
+        dest = dest || new Float32Array(3);
+        dest[0] = u[0] - v[0];
+        dest[1] = u[1] - v[1];
+        dest[2] = u[2] - v[2];
+        return dest;
+    }
+
+    static normalize(v, dest) {
+        dest = dest || new Float32Array(3);
+        const mag = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+        if (mag === 0) {
+            dest[0] = 0;
+            dest[1] = 0;
+            dest[2] = 0;
+            return dest;
+        }
+        dest[0] = v[0] / mag;
+        dest[1] = v[1] / mag;
+        dest[2] = v[2] / mag;
+        return dest;
+    }
+
+    static cross(u, v, dest) {
+        dest = dest || new Float32Array(3);
+        dest[0] = u[1] * v[2] - u[2] * v[1];
+        dest[1] = u[2] * v[0] - u[0] * v[2];
+        dest[2] = u[0] * v[1] - u[1] * v[0];
+        return dest;
+    }
+}
+
 const fs = require('fs');
 
 const args = process.argv.slice(2);
@@ -17,47 +59,47 @@ const objVertices = [];
 const objNormals = [];
 const objFaces = [];
 
-function subtract(a, b) {
-    return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
-}
-
-function normalize(v) {
-    const len = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-    if (len === 0) return { x: 0, y: 0, z: 0 };
-    return { x: v.x / len, y: v.y / len, z: v.z / len };
-}
-
-function cross(a, b) {
-    return {
-        x: a.y * b.z - a.z * b.y,
-        y: a.z * b.x - a.x * b.z,
-        z: a.x * b.y - a.y * b.x
-    };
-}
-
 function getPoint(index, totalSides, r, y) {
     const theta = (index / totalSides) * 2 * Math.PI;
-    return { x: Math.cos(theta) * r, y: y, z: Math.sin(theta) * r };
+    return V3.create(Math.cos(theta) * r, y, Math.sin(theta) * r);
 }
 
-// Caras laterales
+const verticesBase = [];
+const verticesCima = [];
+
 for (let i = 0; i < sides; i++) {
-    const current = i;
+    const theta = (i / sides) * 2 * Math.PI;
+    const x = Math.cos(theta);
+    const z = Math.sin(theta);
+    
+    verticesBase.push(V3.create(x * rBase, 0, z * rBase));
+    verticesCima.push(V3.create(x * rTop, height, z * rTop));
+}
+
+const normalesLaterales = [];
+for (let i = 0; i < sides; i++) {
+    const theta = (i / sides) * 2 * Math.PI;
+    const x = Math.cos(theta);
+    const z = Math.sin(theta);
+    
+    const tangente = V3.create(-z, 0, x);
+    const vectorPendiente = V3.subtract(verticesCima[i], verticesBase[i]);
+    const normalLateral = V3.cross(tangente, vectorPendiente);
+    V3.normalize(normalLateral, normalLateral);
+    
+    normalesLaterales.push(normalLateral);
+}
+
+for (let i = 0; i < sides; i++) {
     const next = (i + 1) % sides;
+    
+    const normalActual = normalesLaterales[i];
+    const normalSiguiente = normalesLaterales[next];
+    
+    objVertices.push(verticesBase[i], verticesBase[next], verticesCima[next], verticesCima[i]);
+    objNormals.push(normalActual, normalSiguiente, normalSiguiente, normalActual);
 
-    const pBL = getPoint(current, sides, rBase, 0.0);
-    const pBR = getPoint(next, sides, rBase, 0.0);
-    const pTL = getPoint(current, sides, rTop, height);
-    const pTR = getPoint(next, sides, rTop, height);
-
-    const vecU = subtract(pBR, pBL);
-    const vecV = subtract(pTL, pBL);
-    const normal = normalize(cross(vecU, vecV));
-
-    const startIdx = objVertices.length + 1;
-    objVertices.push(pBL, pBR, pTR, pTL);
-    objNormals.push(normal, normal, normal, normal);
-
+    const startIdx = objVertices.length - 3;
     objFaces.push([
         { v: startIdx, vn: startIdx },
         { v: startIdx + 1, vn: startIdx + 1 },
@@ -71,9 +113,8 @@ for (let i = 0; i < sides; i++) {
     ]);
 }
 
-// Tapa superior
-const normalTop = { x: 0.0, y: 1.0, z: 0.0 };
-const centerTop = { x: 0.0, y: height, z: 0.0 };
+const normalTop = V3.create(0.0, 1.0, 0.0);
+const centerTop = V3.create(0.0, height, 0.0);
 const idxCenterTop = objVertices.length + 1;
 objVertices.push(centerTop);
 objNormals.push(normalTop);
@@ -93,14 +134,13 @@ for (let i = 0; i < sides; i++) {
 
     objFaces.push([
         { v: idxCenterTop, vn: idxCenterTop },
-        { v: idxCurr, vn: idxCurr },
-        { v: idxNext, vn: idxNext }
+        { v: idxNext, vn: idxNext },
+        { v: idxCurr, vn: idxCurr }
     ]);
 }
 
-// Tapa inferior
-const normalBottom = { x: 0.0, y: -1.0, z: 0.0 };
-const centerBottom = { x: 0.0, y: 0.0, z: 0.0 };
+const normalBottom = V3.create(0.0, -1.0, 0.0);
+const centerBottom = V3.create(0.0, 0.0, 0.0);
 const idxCenterBottom = objVertices.length + 1;
 objVertices.push(centerBottom);
 objNormals.push(normalBottom);
@@ -125,19 +165,18 @@ for (let i = 0; i < sides; i++) {
     ]);
 }
 
-// Escritura del archivo OBJ
 const filename = `building_${sides}_${height}_${rBase}_${rTop}.obj`;
 let content = `# OBJ File - Faceted Building\n`;
 content += `# Specs: Sides=${sides}, H=${height}, RB=${rBase}, RT=${rTop}\n`;
 
 content += `\n# Vertices\n`;
 objVertices.forEach(v => {
-    content += `v ${v.x.toFixed(4)} ${v.y.toFixed(4)} ${v.z.toFixed(4)}\n`;
+    content += `v ${v[0].toFixed(4)} ${v[1].toFixed(4)} ${v[2].toFixed(4)}\n`;
 });
 
 content += `\n# Normals\n`;
 objNormals.forEach(n => {
-    content += `vn ${n.x.toFixed(4)} ${n.y.toFixed(4)} ${n.z.toFixed(4)}\n`;
+    content += `vn ${n[0].toFixed(4)} ${n[1].toFixed(4)} ${n[2].toFixed(4)}\n`;
 });
 
 content += `\n# Faces\n`;
